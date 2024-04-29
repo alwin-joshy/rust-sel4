@@ -10,6 +10,9 @@ sel4_cfg_if! {
     if #[sel4_cfg(all(any(ARCH_AARCH64, ARCH_AARCH32), PLAT_QEMU_ARM_VIRT))] {
         #[path = "qemu_arm_virt/mod.rs"]
         mod imp;
+    } else if #[sel4_cfg(all(ARCH_AARCH64, PLAT_ODROIDC2))] {
+        #[path = "odroidc2/mod.rs"]
+        mod imp;
     } else if #[sel4_cfg(all(any(ARCH_AARCH64, ARCH_AARCH32), PLAT_BCM2711))] {
         #[path = "bcm2711/mod.rs"]
         mod imp;
