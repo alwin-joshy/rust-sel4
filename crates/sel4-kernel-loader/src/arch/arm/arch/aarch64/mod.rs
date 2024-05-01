@@ -68,7 +68,9 @@ impl Arch for ArchImpl {
             switch_translation_tables_el2();
         }
 
-        log::debug!("Done switching translation tables");
+        // log::debug!("Done switching translation tables");
+        fmt::debug_println_without_synchronization!("Done switching translation tables");
+
 
         (kernel_entry)(
             payload_info.user_image.phys_addr_range.start,
