@@ -68,6 +68,8 @@ impl Arch for ArchImpl {
             switch_translation_tables_el2();
         }
 
+        log::debug!("Done switching translation tables");
+
         (kernel_entry)(
             payload_info.user_image.phys_addr_range.start,
             payload_info.user_image.phys_addr_range.end,
