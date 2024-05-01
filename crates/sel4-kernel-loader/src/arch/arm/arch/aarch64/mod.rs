@@ -12,7 +12,7 @@ use tock_registers::interfaces::Readable;
 
 use sel4_kernel_loader_payload_types::PayloadInfo;
 
-use crate::{arch::Arch, main, secondary_main};
+use crate::{arch::Arch, main, secondary_main, fmt};
 
 pub(crate) mod drivers;
 pub(crate) mod exception_handler;
