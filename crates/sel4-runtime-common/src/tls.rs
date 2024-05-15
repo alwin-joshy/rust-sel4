@@ -20,6 +20,9 @@ pub unsafe fn initialize_tls_on_stack_and_continue(cont_fn: ContFn, cont_arg: *m
         .iter()
         .find(|phdr| phdr.p_type == PT_TLS)
         .unwrap_or_else(|| abort!("no PT_TLS segment"));
+
+    sel4::debug_println("hello there");
+
     let unchecked = UncheckedTlsImage {
         vaddr: phdr.p_vaddr,
         filesz: phdr.p_filesz,
