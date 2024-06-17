@@ -8,16 +8,20 @@ use core::ops::Range;
 
 use zerocopy::{AsBytes, FromBytes, FromZeroes};
 
+pub trait Descriptor {}
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug, PartialOrd, Ord, PartialEq, Eq, AsBytes, FromBytes, FromZeroes)]
-pub struct Descriptor {
+pub struct NetworkDescriptor {
     encoded_addr: usize,
     len: u32,
     _padding: [u8; 4],
-    cookie: usize,
+    cookie: usize
 }
 
-impl Descriptor {
+impl Descriptor for NetworkDescriptor {}
+
+impl NetworkDescriptor {
     pub fn new(encoded_addr: usize, len: u32, cookie: usize) -> Self {
         Self {
             encoded_addr,

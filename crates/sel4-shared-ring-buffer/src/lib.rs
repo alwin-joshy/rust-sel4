@@ -40,13 +40,13 @@ impl PeerMisbehaviorError {
     }
 }
 
-pub struct RingBuffers<'a, R: RingBuffersRole, F, T = Descriptor> {
+pub struct RingBuffers<'a, R: RingBuffersRole, F, T: Descriptor> {
     free: RingBuffer<'a, R::FreeRole, T>,
     used: RingBuffer<'a, R::UsedRole, T>,
     notify: F,
 }
 
-impl<'a, R: RingBuffersRole, F, T: Copy> RingBuffers<'a, R, F, T> {
+impl<'a, R: RingBuffersRole, F, T: Copy + Descriptor> RingBuffers<'a, R, F, T> {
     pub fn new(
         free: RingBuffer<'a, R::FreeRole, T>,
         used: RingBuffer<'a, R::UsedRole, T>,
@@ -85,13 +85,13 @@ impl<'a, R: RingBuffersRole, F, T: Copy> RingBuffers<'a, R, F, T> {
     }
 }
 
-impl<'a, U, R: RingBuffersRole, F: Fn() -> U, T> RingBuffers<'a, R, F, T> {
+impl<'a, U, R: RingBuffersRole, F: Fn() -> U, T: Descriptor> RingBuffers<'a, R, F, T> {
     pub fn notify(&self) -> U {
         (self.notify)()
     }
 }
 
-impl<'a, U, R: RingBuffersRole, F: FnMut() -> U, T> RingBuffers<'a, R, F, T> {
+impl<'a, U, R: RingBuffersRole, F: FnMut() -> U, T: Descriptor> RingBuffers<'a, R, F, T> {
     pub fn notify_mut(&mut self) -> U {
         (self.notify)()
     }
@@ -99,20 +99,20 @@ impl<'a, U, R: RingBuffersRole, F: FnMut() -> U, T> RingBuffers<'a, R, F, T> {
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
-pub struct RawRingBuffer<T = Descriptor> {
+pub struct RawRingBuffer<T: Descriptor> {
     pub write_index: u32,
     pub read_index: u32,
     pub descriptors: [T; RING_BUFFER_SIZE],
 }
 
-pub struct RingBuffer<'a, R: RingBufferRole, T = Descriptor> {
+pub struct RingBuffer<'a, R: RingBufferRole, T: Descriptor> {
     inner: ExternallySharedRef<'a, RawRingBuffer<T>>,
     stored_write_index: Wrapping<u32>,
     stored_read_index: Wrapping<u32>,
     _phantom: PhantomData<R>,
 }
 
-impl<'a, R: RingBufferRole, T: Copy> RingBuffer<'a, R, T> {
+impl<'a, R: RingBufferRole, T: Copy + Descriptor> RingBuffer<'a, R, T> {
     const SIZE: usize = RING_BUFFER_SIZE;
 
     pub fn new(
@@ -219,7 +219,7 @@ impl<'a, R: RingBufferRole, T: Copy> RingBuffer<'a, R, T> {
     }
 }
 
-impl<'a, T: Copy + FromBytes + AsBytes> RingBuffer<'a, Write, T> {
+impl<'a, T: Copy + FromBytes + AsBytes + Descriptor> RingBuffer<'a, Write, T> {
     pub fn enqueue_and_commit(&mut self, desc: T) -> Result<Result<(), T>, PeerMisbehaviorError> {
         self.enqueue(desc, true)
     }
@@ -263,7 +263,7 @@ impl<'a, T: Copy + FromBytes + AsBytes> RingBuffer<'a, Write, T> {
     }
 }
 
-impl<'a, T: Copy + FromBytes + AsBytes> RingBuffer<'a, Read, T> {
+impl<'a, T: Copy + FromBytes + AsBytes + Descriptor> RingBuffer<'a, Read, T> {
     pub fn dequeue(&mut self) -> Result<Option<T>, PeerMisbehaviorError> {
         if self.is_empty()? {
             return Ok(None);
